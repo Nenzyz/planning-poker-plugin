@@ -81,7 +81,7 @@
                 <view name="viewVoters">/views/vote/viewVoters.vm</view>
                 <view name="success">/views/success.vm</view>
             </action>
-            <action name="com.redhat.engineering.plugins.actions.ConfigAction" alias="PokerConfig" roles-required="use">
+            <action name="com.redhat.engineering.plugins.actions.ConfigAction" alias="PokerConfig" roles-required="admin">
                 <view name="input">/views/config/input.vm</view>
                 <view name="error">/views/error.vm</view>
                 <view name="success">/views/success.vm</view>
