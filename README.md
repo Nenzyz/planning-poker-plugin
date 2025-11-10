@@ -20,6 +20,49 @@ To enter the date, you can use the date picker. Note that Start and End date of 
 
 You can see in the right bottom part of the image information about the newly created session.
 
+## Instant Planning Poker (Quick Start)
+
+For faster estimation sessions, use the **Instant Planning Poker** feature. This feature:
+- **Auto-creates** a 1-hour session immediately (no form to fill)
+- **Opens a modal dialog** for voting without leaving the issue page
+- **Reuses** existing sessions if one is already active
+- Allows the **session creator to end the session** early and view results
+- Provides **one-click estimate application** (min/max/average) to the issue
+
+### How to Use Instant Planning Poker
+
+1. **Start a Session**: On any issue page, click "Instant Planning Poker" in the "More" menu (below "Create Poker Session")
+   - A modal dialog opens instantly
+   - Session is auto-created with 1-hour duration
+   - No need to fill out any forms
+
+2. **Vote**: Click a card value in the dialog, optionally add a comment, then the vote is saved automatically
+   - Your vote is saved via AJAX (page doesn't navigate away)
+   - You can change your vote anytime
+   - Dialog stays open for continued interaction
+
+3. **End Session** (Creator Only): After voting, click "End Session & Show Results"
+   - Session ends immediately
+   - Statistics appear in the same dialog (min, max, average, vote count)
+   - All other voters can see the results
+
+4. **Apply Estimate** (Creator Only): Choose from three options:
+   - **Apply Min**: Use the minimum voted value
+   - **Apply Average**: Use the average of all votes
+   - **Apply Max**: Use the maximum voted value
+   - Selected value updates the issue's estimate field (customfield_10205)
+   - Dialog closes and page refreshes to show updated estimate
+
+### Differences from Regular Sessions
+
+| Feature | Regular Session | Instant Session |
+|---------|----------------|-----------------|
+| Session Creation | Form with dates/users | Auto-created (1 hour) |
+| Voting Interface | New page | Modal dialog |
+| Page Navigation | Yes | No |
+| End Session Early | Manual date change | One-click button |
+| Apply Estimate | Manual | One-click (min/max/avg) |
+
 ## How to Vote
 
 You can vote by first clicking on the "Select Action" button in the Planning Poker Session panel:
