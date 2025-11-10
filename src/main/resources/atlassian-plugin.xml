@@ -8,6 +8,11 @@
         <param name="plugin-icon">images/pluginIcon.png</param>
         <param name="plugin-logo">images/pluginLogo.png</param>
         <param name="configure.url">/secure/admin/PokerConfig!default.jspa</param>
+        <param name="atlassian-data-center-compatible">true</param>
+        <param name="plugin-type">agile</param>
+        <bundle-instructions>
+            <Export-Package>com.redhat.engineering.plugins.api</Export-Package>
+        </bundle-instructions>
     </plugin-info>
 
     <!-- add our i18n resource -->
@@ -30,15 +35,24 @@
     <component-import key="pluginSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory" />
 
     <!-- components -->
-    <component key="sessionService" class="com.redhat.engineering.plugins.services.SessionService" />
-    <component key="voteService" class="com.redhat.engineering.plugins.services.VoteService" />
-    <component key="configService" class="com.redhat.engineering.plugins.services.ConfigService" />
-    <component key="groupService" class="com.redhat.engineering.plugins.services.GroupService" />
+    <component key="sessionService" class="com.redhat.engineering.plugins.services.SessionService">
+        <description>Service for managing Planning Poker estimation sessions</description>
+    </component>
+    <component key="voteService" class="com.redhat.engineering.plugins.services.VoteService">
+        <description>Service for managing votes within Planning Poker sessions</description>
+    </component>
+    <component key="configService" class="com.redhat.engineering.plugins.services.ConfigService">
+        <description>Service for managing Planning Poker configuration and allowed votes</description>
+    </component>
+    <component key="groupService" class="com.redhat.engineering.plugins.services.GroupService">
+        <description>Service for managing voter groups</description>
+    </component>
 
     <!-- web items -->
     <web-item name="New Poker Session" i18n-name-key="new-poker-link.name" key="new-poker-link"
               section="operations-operations" weight="1000">
-        <label key="new-poker-link.label">Create Poker Session</label>
+        <label key="new-poker-link.label">Planning Poker Session</label>
+        <tooltip>Create a new Planning Poker estimation session for this issue</tooltip>
         <link linkId="new-poker-link-id">/secure/PokerSession!default.jspa?key=${issue.key}</link>
         <styleClass>trigger-dialog</styleClass>
         <condition class="com.atlassian.jira.plugin.webfragment.conditions.IsIssueEditableCondition"/>
@@ -46,28 +60,43 @@
             <param name="permission">edit</param>
         </condition>
     </web-item>
+    <web-item name="Instant Poker" key="instant-poker-link"
+              section="operations-operations" weight="1001">
+        <label>Instant Planning Poker</label>
+        <tooltip>Quick start: auto-create 1-hour session and vote now</tooltip>
+        <link linkId="instant-poker-link">/secure/InstantPoker!default.jspa?key=${issue.key}</link>
+        <styleClass>instant-poker-trigger</styleClass>
+        <condition class="com.atlassian.jira.plugin.webfragment.conditions.IsIssueEditableCondition"/>
+        <condition class="com.atlassian.jira.plugin.webfragment.conditions.HasIssuePermissionCondition">
+            <param name="permission">edit</param>
+        </condition>
+    </web-item>
     <web-item name="Planning Poker Configuration" i18n-name-key="poker-config-link.name" key="poker-config-link"
               section="top_system_section/issue_features" weight="150">
-        <label>Planning Poker</label>
+        <label>Planning Poker Configuration</label>
+        <tooltip>Configure Planning Poker settings and allowed votes</tooltip>
         <link linkId="poker-config-link.link">/secure/admin/PokerConfig!default.jspa</link>
     </web-item>
     <web-item name="Poker Sessions" i18n-name-key="poker-sessions-link.name" key="poker-sessions-link"
               section="system.top.navigation.bar" weight="1000">
-        <label>Poker Sessions</label>
+        <label>Planning Poker</label>
+        <tooltip>View all Planning Poker estimation sessions</tooltip>
         <link linkId="poker-sessions-link-id">/secure/ShowPokerSessions.jspa</link>
         <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition"/>
     </web-item>
 
-    <!-- web pannels -->
+    <!-- web panels -->
     <web-panel key="planning-poker-panel" location="atl.jira.view.issue.right.context"
                class="com.redhat.engineering.plugins.panels.PlanningPokerPanel">
-        <label>Planning Poker Session</label>
+        <label>Planning Poker Estimation</label>
+        <description>Active planning poker session for this issue</description>
         <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition"/>
         <condition class="com.redhat.engineering.plugins.conditions.SessionCreatedCondition"/>
     </web-panel>
 
-    <!-- webworks -->
-    <webwork1 key="planning-poker-webwork" name="Planning Poker" i18n-name-key="planning-poker-webwork.name">
+    <!-- webwork actions -->
+    <webwork1 key="planning-poker-webwork" name="Planning Poker Actions" i18n-name-key="planning-poker-webwork.name">
+        <description>Planning Poker webwork1 actions for session management, voting, and configuration</description>
         <actions>
             <action name="com.redhat.engineering.plugins.actions.SessionAction" alias="PokerSession">
                 <view name="input">/views/session/input.vm</view>
@@ -95,6 +124,9 @@
                 <view name="list">/views/show/list.vm</view>
                 <view name="create">/views/error.vm</view>
                 <view name="success">/views/success.vm</view>
+            </action>
+            <action name="com.redhat.engineering.plugins.actions.InstantPokerAction" alias="InstantPoker" roles-required="use">
+                <view name="redirect-vote">/views/vote/instant-redirect.vm</view>
             </action>
         </actions>
     </webwork1>
