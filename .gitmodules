@@ -1,0 +1,6 @@
+[submodule "streams-jira-delete-issue-plugin"]
+	path = streams-jira-delete-issue-plugin
+	url = https://bitbucket.org/atlassian_tutorial/streams-jira-delete-issue-plugin.git
+[submodule "jira-gadget-2"]
+	path = jira-gadget-2
+	url = https://bitbucket.org/atlassian_tutorial/jira-gadget-2.git
