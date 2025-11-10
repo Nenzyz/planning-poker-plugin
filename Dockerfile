@@ -1,4 +1,4 @@
-FROM maven:3.9-eclipse-temurin-17
+FROM maven:3.9-eclipse-temurin-11
 
 # Set up Maven environment for Atlassian plugin development
 # The AMPS plugin in pom.xml will handle all Atlassian-specific dependencies
