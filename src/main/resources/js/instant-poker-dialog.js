@@ -3,8 +3,8 @@
 
     window.InstantPoker = {
         init: function() {
-            // Bind to instant poker link clicks
-            $('.instant-poker-trigger').on('click', function(e) {
+            // Use event delegation to handle dynamically loaded menu items
+            $(document).on('click', '.instant-poker-trigger', function(e) {
                 e.preventDefault();
                 var issueKey = $(this).attr('href').match(/key=([^&]+)/)[1];
                 InstantPoker.openDialog(issueKey);

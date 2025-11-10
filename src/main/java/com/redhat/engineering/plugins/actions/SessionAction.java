@@ -1,5 +1,8 @@
 package com.redhat.engineering.plugins.actions;
 
+import com.atlassian.jira.security.request.RequestMethod;
+import com.atlassian.jira.security.request.SupportedMethods;
+
 import com.atlassian.jira.bc.issue.IssueService;
 import com.atlassian.jira.component.ComponentAccessor;
 import com.atlassian.jira.datetime.DateTimeFormatter;
@@ -29,6 +32,7 @@ import java.util.Map;
 /**
  * @author vdedik@redhat.com
  */
+@SupportedMethods({RequestMethod.GET, RequestMethod.POST})
 public class SessionAction extends AbstractAction {
     private static final Logger log = LoggerFactory.getLogger(SessionAction.class);
 
@@ -150,7 +154,7 @@ public class SessionAction extends AbstractAction {
 
     @Override
     public void doValidation() {
-        DateTimeFormatter dateTimeFormatter = this.dateTimeFormatter.withStyle(DateTimeStyle.COMPLETE);
+        DateTimeFormatter dateTimeFormatter = this.dateTimeFormatter.withStyle(DateTimeStyle.DATE_TIME_PICKER);
 
         Date startParsed = null;
         Date endParsed = null;
@@ -204,7 +208,7 @@ public class SessionAction extends AbstractAction {
     }
 
     public String saveCreate() throws Exception {
-        DateTimeFormatter dateTimeFormatter = this.dateTimeFormatter.withStyle(DateTimeStyle.COMPLETE);
+        DateTimeFormatter dateTimeFormatter = this.dateTimeFormatter.withStyle(DateTimeStyle.DATE_TIME_PICKER);
         Session session = new Session();
         session.setAuthor(getCurrentUser());
         session.setCreated(new Date());
@@ -220,7 +224,7 @@ public class SessionAction extends AbstractAction {
     }
 
     public String saveEdit() throws Exception {
-        DateTimeFormatter dateTimeFormatter = this.dateTimeFormatter.withStyle(DateTimeStyle.COMPLETE);
+        DateTimeFormatter dateTimeFormatter = this.dateTimeFormatter.withStyle(DateTimeStyle.DATE_TIME_PICKER);
         Session session = getSessionObject();
         session.setStart(dateTimeFormatter.parse(getStart()));
         session.setEnd(dateTimeFormatter.parse(getEnd()));

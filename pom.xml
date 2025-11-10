@@ -9,26 +9,45 @@
         <name>Red Hat, Inc.</name>
         <url>http://www.redhat.com</url>
     </organization>
-    <name>planning-poker</name>
-    <description>This is the com.redhat.engineering.plugins:planning-poker plugin for Atlassian JIRA.</description>
+    <name>Planning Poker for JIRA</name>
+    <description>Planning Poker plugin for Atlassian JIRA - consensus-based estimation tool for agile teams. Compatible with JIRA 9.11.2+.</description>
     <packaging>atlassian-plugin</packaging>
+    <url>https://github.com/VaclavDedik/planning-poker-plugin</url>
     <dependencies>
         <dependency>
             <groupId>com.atlassian.jira</groupId>
             <artifactId>jira-api</artifactId>
             <version>${jira.version}</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>jndi</groupId>
+                    <artifactId>jndi</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.sf.ehcache</groupId>
+                    <artifactId>ehcache</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <!-- Add dependency on jira-core if you want access to JIRA implementation classes as well as the sanctioned API. -->
         <!-- This is not normally recommended, but may be required eg when migrating a plugin originally developed against JIRA 4.x -->
-        <!--
         <dependency>
             <groupId>com.atlassian.jira</groupId>
             <artifactId>jira-core</artifactId>
             <version>${jira.version}</version>
             <scope>provided</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>jndi</groupId>
+                    <artifactId>jndi</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>net.sf.ehcache</groupId>
+                    <artifactId>ehcache</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
-        -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

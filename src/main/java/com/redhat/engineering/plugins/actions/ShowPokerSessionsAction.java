@@ -1,5 +1,8 @@
 package com.redhat.engineering.plugins.actions;
 
+import com.atlassian.jira.security.request.RequestMethod;
+import com.atlassian.jira.security.request.SupportedMethods;
+
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
 import com.atlassian.jira.security.Permissions;
@@ -13,6 +16,7 @@ import java.util.List;
 /**
  * @author vdedik@redhat.com
  */
+@SupportedMethods({RequestMethod.GET, RequestMethod.POST})
 public class ShowPokerSessionsAction extends AbstractAction {
     private static final Integer PAGE_COUNT = 30;
 

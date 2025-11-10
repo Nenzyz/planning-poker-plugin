@@ -67,8 +67,8 @@ public class InstantPokerAction extends AbstractAction {
             sessionService.save(session);
         }
 
-        // Redirect to voting dialog (will enhance VoteAction to show dialog)
-        return "redirect-vote";
+        // Return success for AJAX calls (JavaScript will open modal dialog)
+        return SUCCESS;
     }
 
     private Issue getIssueObject() {

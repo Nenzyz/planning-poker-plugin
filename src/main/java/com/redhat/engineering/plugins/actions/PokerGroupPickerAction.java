@@ -1,5 +1,8 @@
 package com.redhat.engineering.plugins.actions;
 
+import com.atlassian.jira.security.request.RequestMethod;
+import com.atlassian.jira.security.request.SupportedMethods;
+
 import com.redhat.engineering.plugins.domain.Group;
 import com.redhat.engineering.plugins.services.GroupService;
 
@@ -11,6 +14,7 @@ import java.util.TreeSet;
 /**
  * @author vdedik@redhat.com
  */
+@SupportedMethods({RequestMethod.GET, RequestMethod.POST})
 public class PokerGroupPickerAction extends AbstractAction {
 
     private GroupService groupService;

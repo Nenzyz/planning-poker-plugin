@@ -1,5 +1,7 @@
 package com.redhat.engineering.plugins.actions;
 
+import com.atlassian.jira.security.request.RequestMethod;
+import com.atlassian.jira.security.request.SupportedMethods;
 import com.redhat.engineering.plugins.services.ConfigService;
 
 import java.util.Arrays;
@@ -9,6 +11,7 @@ import java.util.List;
 /**
  * @author vdedik@redhat.com
  */
+@SupportedMethods({RequestMethod.GET, RequestMethod.POST})
 public class ConfigAction extends AbstractAction {
     private final ConfigService configService;
 

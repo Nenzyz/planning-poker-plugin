@@ -29,6 +29,7 @@
 </head>
 <body>
 <form action="PokerSession.jspa" id="create-poker-session" class="aui" method="post">
+    <input type="hidden" name="atl_token" value="$atl_token">
     <div class="form-body">
         #if ($edit)
         <h2 class="dialog-title">Edit Planning Poker Session</h2>

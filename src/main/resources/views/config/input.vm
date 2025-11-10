@@ -6,6 +6,7 @@
 </head>
 <body>
 <form action="PokerConfig.jspa" method="post" class="aui">
+    <input type="hidden" name="atl_token" value="$atl_token">
     <div class="form-body">
         <h2>Planning Poker Configuration</h2>
 
