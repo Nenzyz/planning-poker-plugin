@@ -54,7 +54,7 @@ public class InstantPokerAction extends AbstractAction {
             return ERROR;
         }
 
-        // Check for existing session - reuse if found
+        // Check for existing session - reuse if found, extend if ended
         Session session = sessionService.get(getKey());
         if (session == null) {
             // Create new session with 1-hour defaults
@@ -65,10 +65,17 @@ public class InstantPokerAction extends AbstractAction {
             session.setStart(new Date());
             session.setEnd(new Date(System.currentTimeMillis() + 3600000)); // +1 hour
             sessionService.save(session);
+        } else {
+            // If session exists but has ended, extend it by 1 hour from now
+            if (System.currentTimeMillis() >= session.getEnd().getTime()) {
+                session.setStart(new Date());
+                session.setEnd(new Date(System.currentTimeMillis() + 3600000)); // +1 hour
+                sessionService.update(session);
+            }
         }
 
-        // Return INPUT to show voting interface in dialog
-        return INPUT;
+        // Redirect to VoteAction to show voting interface
+        return getRedirect("/secure/PokerVote!default.jspa?key=" + getKey() + "&instant=true");
     }
 
     private Issue getIssueObject() {
