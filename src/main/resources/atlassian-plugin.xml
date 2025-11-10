@@ -31,7 +31,11 @@
     <web-resource key="instant-poker-dialog-js" name="Instant Poker Dialog JavaScript">
         <description>JavaScript for instant poker modal dialog</description>
         <resource type="download" name="instant-poker-dialog.js" location="/js/instant-poker-dialog.js"/>
+        <context>atl.general</context>
         <context>jira.view.issue</context>
+        <context>jira.navigator.simple</context>
+        <context>jira.navigator.advanced</context>
+        <context>gh-rapid</context>
         <dependency>com.atlassian.auiplugin:ajs</dependency>
         <dependency>com.atlassian.auiplugin:dialog2</dependency>
     </web-resource>
@@ -73,7 +77,7 @@
         <label>Instant Planning Poker</label>
         <tooltip>Quick start: auto-create 1-hour session and vote now</tooltip>
         <link linkId="instant-poker-link">/secure/InstantPoker!default.jspa?key=${issue.key}</link>
-        <styleClass>instant-poker-trigger</styleClass>
+        <styleClass>trigger-dialog</styleClass>
         <condition class="com.atlassian.jira.plugin.webfragment.conditions.IsIssueEditableCondition"/>
         <condition class="com.atlassian.jira.plugin.webfragment.conditions.HasIssuePermissionCondition">
             <param name="permission">edit</param>
@@ -134,7 +138,7 @@
                 <view name="success">/views/success.vm</view>
             </action>
             <action name="com.redhat.engineering.plugins.actions.InstantPokerAction" alias="InstantPoker" roles-required="use">
-                <view name="success">/views/success.vm</view>
+                <view name="input">/views/instant/redirect-to-vote.vm</view>
             </action>
         </actions>
     </webwork1>

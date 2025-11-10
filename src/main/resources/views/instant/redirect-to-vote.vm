@@ -1,0 +1,13 @@
+<html>
+<head>
+    <title>Instant Planning Poker</title>
+    <meta name="decorator" content="atl.popup"/>
+    <script type="text/javascript">
+        // Redirect to voting page within the same dialog
+        window.location.href = AJS.contextPath() + '/secure/PokerVote!default.jspa?key=${key}&instant=true';
+    </script>
+</head>
+<body>
+    <p>Loading voting interface...</p>
+</body>
+</html>

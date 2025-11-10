@@ -67,8 +67,8 @@ public class InstantPokerAction extends AbstractAction {
             sessionService.save(session);
         }
 
-        // Return success for AJAX calls (JavaScript will open modal dialog)
-        return SUCCESS;
+        // Return INPUT to show voting interface in dialog
+        return INPUT;
     }
 
     private Issue getIssueObject() {
