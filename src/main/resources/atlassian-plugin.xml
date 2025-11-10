@@ -28,6 +28,14 @@
         <context>planning-poker</context>
     </web-resource>
 
+    <web-resource key="instant-poker-dialog-js" name="Instant Poker Dialog JavaScript">
+        <description>JavaScript for instant poker modal dialog</description>
+        <resource type="download" name="instant-poker-dialog.js" location="/js/instant-poker-dialog.js"/>
+        <context>jira.view.issue</context>
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>com.atlassian.auiplugin:dialog2</dependency>
+    </web-resource>
+
     <!-- import from the product container -->
     <component-import key="applicationProperties" interface="com.atlassian.sal.api.ApplicationProperties" />
     <component-import key="templateRenderer" interface="com.atlassian.templaterenderer.TemplateRenderer" />
