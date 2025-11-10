@@ -74,8 +74,21 @@ public class InstantPokerAction extends AbstractAction {
             }
         }
 
-        // Redirect to VoteAction to show voting interface
-        return getRedirect("/secure/PokerVote!default.jspa?key=" + getKey() + "&instant=true");
+        // Return INPUT to show voting dialog
+        return INPUT;
+    }
+
+    // Add getter for allowed votes (needed by the view)
+    public java.util.List<String> getAllowedVotes() {
+        return com.atlassian.jira.component.ComponentAccessor
+            .getComponent(com.redhat.engineering.plugins.services.ConfigService.class)
+            .getAllowedVotes();
+    }
+
+    // Add helper methods for the view
+    public boolean isCreator() {
+        Session session = sessionService.get(getKey());
+        return session != null && session.getAuthor().equals(getCurrentUser());
     }
 
     private Issue getIssueObject() {

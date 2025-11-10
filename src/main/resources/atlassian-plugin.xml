@@ -138,7 +138,7 @@
                 <view name="success">/views/success.vm</view>
             </action>
             <action name="com.redhat.engineering.plugins.actions.InstantPokerAction" alias="InstantPoker" roles-required="use">
-                <view name="input">/views/instant/redirect-to-vote.vm</view>
+                <view name="input">/views/instant/vote-dialog.vm</view>
             </action>
         </actions>
     </webwork1>
