@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  build:
+    build: .
+    volumes:
+      - .:/workspace
+      - maven-cache:/root/.m2
+    environment:
+      - MAVEN_OPTS=-Xmx2048m
+    command: tail -f /dev/null
+
+  jira:
+    image: atlassian/jira-software:9.11.2
+    ports:
+      - "2990:8080"
+    environment:
+      - ATL_JDBC_URL=jdbc:h2:mem:jira
+      - ATL_JDBC_DRIVER=org.h2.Driver
+      - ATL_DB_TYPE=h2
+      - JVM_MINIMUM_MEMORY=2048m
+      - JVM_MAXIMUM_MEMORY=4096m
+    volumes:
+      - jira-data:/var/atlassian/application-data/jira
+
+volumes:
+  maven-cache:
+  jira-data:
