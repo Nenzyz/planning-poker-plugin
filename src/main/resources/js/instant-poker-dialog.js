@@ -3,11 +3,15 @@
 
     window.InstantPoker = {
         init: function() {
-            // Use event delegation to handle dynamically loaded menu items
-            $(document).on('click', '.instant-poker-trigger', function(e) {
+            // Use event delegation to intercept clicks on InstantPoker links
+            // Match any link with href containing "InstantPoker"
+            $(document).on('click', 'a[href*="InstantPoker"]', function(e) {
                 e.preventDefault();
-                var issueKey = $(this).attr('href').match(/key=([^&]+)/)[1];
-                InstantPoker.openDialog(issueKey);
+                var href = $(this).attr('href');
+                var match = href.match(/key=([^&]+)/);
+                if (match && match[1]) {
+                    InstantPoker.openDialog(match[1]);
+                }
             });
         },
 
