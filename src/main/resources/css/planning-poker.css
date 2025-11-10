@@ -14,3 +14,81 @@
 .pp-actions .aui-button.aui-dropdown2-trigger {
   padding-right: 10px !important;
 }
+
+/* Instant Poker Styling */
+
+.instant-poker-wrapper {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 3px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.instant-poker-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.instant-poker-header h2 {
+    margin: 0;
+}
+
+.close-instant {
+    font-size: 24px;
+    text-decoration: none;
+    color: #666;
+    cursor: pointer;
+}
+
+.close-instant:hover {
+    color: #000;
+}
+
+.instant-poker-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.stat-item {
+    padding: 15px;
+    background-color: #e3f2fd;
+    border-left: 4px solid #2196f3;
+    border-radius: 4px;
+}
+
+.stat-label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    display: block;
+    font-size: 24px;
+    font-weight: bold;
+    color: #1976d2;
+}
+
+.apply-estimate {
+    margin: 5px;
+}
+
+#end-session-btn {
+    margin-left: 20px;
+    background-color: #f44336;
+    color: white;
+}
+
+#end-session-btn:hover {
+    background-color: #d32f2f;
+}
