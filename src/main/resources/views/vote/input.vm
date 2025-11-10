@@ -4,98 +4,180 @@
     #end
 #end
 
+#set($isInstant = $request.getParameter("instant") == "true")
+#set($sessionEnded = $action.isSessionEnded())
+#set($isCreator = $action.isCreator())
+
+#if(!$isInstant)
 <html>
 <head>
     <title>Vote</title>
     <meta name="decorator" content="issueaction" />
 </head>
 <body>
-<form action="PokerVote.jspa" id="vote-poker" class="aui" method="post">
-    <div class="form-body">
-        <h2 class="dialog-title">Vote</h2>
-        <style>
-            .card {
-                display: inline-block;
-                width: 2.1em;
-                height: 3em;
-                margin: 0;
-                -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
-                -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
-                box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
-                border: 1px solid transparent;
-                border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
-                border-bottom-color: #A2A2A2;
-                position: relative;
-                -webkit-border-radius: 0.2em;
-                border-radius: 0.2em;
-                color: #25201c;
-                font-size: 1.5em;
-                text-align: center;
-                text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
-                line-height: 3em;
-                cursor: pointer;
-                background-color: rgb(224, 230, 230);
-                margin-bottom: 3px;
-            }
-            .card:hover {
-                background-color: #6baff4;
-            }
-            .card.active {
-                background-color: #3b7fc4;
-                color: white;
-            }
-            .cards-row {
-                margin: 5px;
-            }
-            .cards {
-                margin: 0 90px;
-                margin-bottom: 20px;
-            }
-        </style>
-        <script type="text/javascript">
-            function chooseCard(card) {
-                var cards = document.getElementsByClassName("card")
-                for (var i = 0; i < cards.length; i++) {
-                    cards[i].classList.remove("active")
-                }
+#end
 
-                card.classList.add("active")
-                var voteVal = document.getElementById("poker-vote-value")
-                voteVal.value = card.innerHTML
+<!-- Main voting content (always shown) -->
+<div id="instant-vote-wrapper">
+#if(!$sessionEnded)
+    <!-- Voting Section -->
+    <style>
+        .card {
+            display: inline-block;
+            width: 2.1em;
+            height: 3em;
+            margin: 0;
+            -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+            -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
+            border: 1px solid transparent;
+            border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
+            border-bottom-color: #A2A2A2;
+            position: relative;
+            -webkit-border-radius: 0.2em;
+            border-radius: 0.2em;
+            color: #25201c;
+            font-size: 1.5em;
+            text-align: center;
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+            line-height: 3em;
+            cursor: pointer;
+            background-color: rgb(224, 230, 230);
+            margin-bottom: 3px;
+        }
+        .card:hover {
+            background-color: #6baff4;
+        }
+        .card.active {
+            background-color: #3b7fc4;
+            color: white;
+        }
+        .cards-row {
+            margin: 5px;
+        }
+        .cards {
+            margin: 0 90px;
+            margin-bottom: 20px;
+        }
+    </style>
 
-                document.getElementById("poker-vote-submit").removeAttribute("disabled")
-            }
-        </script>
-        <div id="poker-vote-cards" class="cards">
-            <div class="cards-row">
-                #foreach($allowedVote in $action.allowedVotes)
-                    <div class="card #activate($voteVal $allowedVote)" onclick="javascript:chooseCard(this)">$allowedVote</div>
-                #end
+    #if(!$isInstant)
+    <form action="PokerVote.jspa" id="vote-poker" class="aui" method="post">
+        <input type="hidden" name="atl_token" value="$atl_token">
+        <div class="form-body">
+            <h2 class="dialog-title">Vote</h2>
+    #end
+
+            <!-- Voting cards -->
+            <div id="poker-vote-cards" class="cards">
+                <div class="cards-row">
+                    #foreach($allowedVote in $action.allowedVotes)
+                        <div class="card #activate($voteVal $allowedVote)" data-value="$allowedVote">$allowedVote</div>
+                    #end
+                </div>
+            </div>
+
+            <!-- Comment field -->
+            <div class="field-group">
+                <label for="voteComment">Comment</label>
+                <textarea id="voteComment" name="voteComment" class="textarea" cols="40" rows="3">#if($voteComment)$voteComment#end</textarea>
+            </div>
+
+    #if(!$isInstant)
+            <div class="hidden">
+                <input type="hidden" name="voteVal" class="text" id="poker-vote-value" value="${voteVal}"/>
+                <input type="hidden" name="key" value="${key}" />
             </div>
         </div>
-        <div class="field-group">
-            <label for="voteComment">Comment</label>
-            <textarea id="voteComment" name="voteComment" class="textarea"
-                      cols="40" rows="3">#if($voteComment)$voteComment#end</textarea>
-            #if ($errors.containsKey("voteComment"))
-                <div class="error" data-field="voteComment">$errors.get("voteComment")</div>
-            #end
-        </div>
-        <div class="hidden">
-            <input type="hidden" name="voteVal" class="text" id="poker-vote-value" value="${voteVal}"/>
-            <input type="hidden" name="key" value="${key}" />
-        </div>
-    </div>
 
-    <div class="buttons-container form-footer">
-        <div class="buttons">
-            <input accesskey="s" class="button" id="poker-vote-submit"
-                   name="Vote" title="Press Ctrl+Alt+s to submit this form"
-                   type="submit" value="Vote" disabled="disabled">
-            <a accesskey="`" class="cancel" href="/browse/${key}" id="vote-poker-cancel"
-               title="Press Ctrl+Alt+` to cancel">Cancel</a>
+        <div class="buttons-container form-footer">
+            <div class="buttons">
+                <input accesskey="s" class="button" id="poker-vote-submit"
+                       name="Vote" title="Press Ctrl+Alt+s to submit this form"
+                       type="submit" value="Vote">
+                <a accesskey="`" class="cancel" href="/browse/${key}" id="vote-poker-cancel"
+                   title="Press Ctrl+Alt+` to cancel">Cancel</a>
+            </div>
         </div>
+    </form>
+
+    <script type="text/javascript">
+        (function() {
+            var cards = document.getElementsByClassName("card");
+            for (var i = 0; i < cards.length; i++) {
+                cards[i].addEventListener("click", function() {
+                    // Remove active from all cards
+                    for (var j = 0; j < cards.length; j++) {
+                        cards[j].classList.remove("active");
+                    }
+                    // Add active to clicked card
+                    this.classList.add("active");
+                    // Update hidden field
+                    document.getElementById("poker-vote-value").value = this.getAttribute("data-value");
+                });
+            }
+        })();
+    </script>
+    #else
+    <!-- End session button (creator only, instant mode only) -->
+    #if($isCreator)
+        <div style="margin-top: 20px;">
+            <button type="button" id="end-session-btn" class="aui-button aui-button-primary">
+                End Session & Show Results
+            </button>
+        </div>
+    #end
+    #end
+#end
+
+<!-- Results section (shown when session ended) -->
+#if($sessionEnded)
+    #set($stats = $action.sessionStats)
+    <div id="results-section">
+        <h3>Session Results</h3>
+
+        #if($stats && !$stats.isEmpty())
+            <div class="instant-poker-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Minimum:</span>
+                    <span class="stat-value">$stats.get("min")</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Maximum:</span>
+                    <span class="stat-value">$stats.get("max")</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Average:</span>
+                    <span class="stat-value">$stats.get("average")</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Total Votes:</span>
+                    <span class="stat-value">$stats.get("count")</span>
+                </div>
+            </div>
+
+            #if($isCreator && $isInstant)
+                <h4>Apply Final Estimate</h4>
+                <div class="buttons-container">
+                    <button type="button" class="aui-button apply-estimate" data-value="$stats.get('min')">
+                        Apply Min ($stats.get("min"))
+                    </button>
+                    <button type="button" class="aui-button apply-estimate" data-value="$stats.get('average')">
+                        Apply Average ($stats.get("average"))
+                    </button>
+                    <button type="button" class="aui-button apply-estimate" data-value="$stats.get('max')">
+                        Apply Max ($stats.get("max"))
+                    </button>
+                </div>
+            #end
+        #else
+            <p>No votes cast yet.</p>
+        #end
     </div>
-</form>
+#end
+</div>
+
+#if(!$isInstant)
 </body>
 </html>
+#end
