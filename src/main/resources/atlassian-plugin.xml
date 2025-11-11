@@ -28,16 +28,11 @@
         <context>planning-poker</context>
     </web-resource>
 
-    <web-resource key="instant-poker-dialog-js" name="Instant Poker Dialog JavaScript">
-        <description>JavaScript for instant poker modal dialog</description>
-        <resource type="download" name="instant-poker-dialog.js" location="/js/instant-poker-dialog.js"/>
-        <context>atl.general</context>
-        <context>jira.view.issue</context>
-        <context>jira.navigator.simple</context>
-        <context>jira.navigator.advanced</context>
-        <context>gh-rapid</context>
+    <!-- Instant poker web resource - loaded in dialogs -->
+    <web-resource key="instant-poker-resources" name="Instant Poker Resources">
         <dependency>com.atlassian.auiplugin:ajs</dependency>
-        <dependency>com.atlassian.auiplugin:dialog2</dependency>
+        <resource type="download" name="instant-poker.js" location="/js/instant-poker.js"/>
+        <context>atl.general</context>
     </web-resource>
 
     <!-- import from the product container -->
@@ -76,7 +71,7 @@
               section="operations-operations" weight="1001">
         <label>Instant Planning Poker</label>
         <tooltip>Quick start: auto-create 1-hour session and vote now</tooltip>
-        <link linkId="instant-poker-link">/secure/InstantPoker!default.jspa?key=${issue.key}</link>
+        <link linkId="instant-poker-link">/secure/InstantPoker!default.jspa?key=${issue.key}&amp;instant=true</link>
         <styleClass>trigger-dialog</styleClass>
         <condition class="com.atlassian.jira.plugin.webfragment.conditions.IsIssueEditableCondition"/>
         <condition class="com.atlassian.jira.plugin.webfragment.conditions.HasIssuePermissionCondition">
@@ -138,7 +133,7 @@
                 <view name="success">/views/success.vm</view>
             </action>
             <action name="com.redhat.engineering.plugins.actions.InstantPokerAction" alias="InstantPoker" roles-required="use">
-                <view name="input">/views/instant/vote-dialog.vm</view>
+                <view name="input">/views/vote/input.vm</view>
             </action>
         </actions>
     </webwork1>

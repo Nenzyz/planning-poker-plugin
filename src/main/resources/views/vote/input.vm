@@ -4,9 +4,11 @@
     #end
 #end
 
-#set($isInstant = $request.getParameter("instant") == "true")
+#set($isInstant = $action.isInstantMode())
 #set($sessionEnded = $action.isSessionEnded())
 #set($isCreator = $action.isCreator())
+#set($session = $action.session)
+#set($issueKey = $session.issue.key)
 
 #if(!$isInstant)
 <html>
@@ -17,8 +19,9 @@
 <body>
 #end
 
+
 <!-- Main voting content (always shown) -->
-<div id="instant-vote-wrapper">
+<div id="instant-vote-wrapper" data-is-instant="$isInstant" data-is-creator="$isCreator" data-issue-key="$issueKey">
 #if(!$sessionEnded)
     <!-- Voting Section -->
     <style>
@@ -61,12 +64,10 @@
         }
     </style>
 
-    #if(!$isInstant)
     <form action="PokerVote.jspa" id="vote-poker" class="aui" method="post">
         <input type="hidden" name="atl_token" value="$atl_token">
         <div class="form-body">
             <h2 class="dialog-title">Vote</h2>
-    #end
 
             <!-- Voting cards -->
             <div id="poker-vote-cards" class="cards">
@@ -83,50 +84,47 @@
                 <textarea id="voteComment" name="voteComment" class="textarea" cols="40" rows="3">#if($voteComment)$voteComment#end</textarea>
             </div>
 
-    #if(!$isInstant)
             <div class="hidden">
                 <input type="hidden" name="voteVal" class="text" id="poker-vote-value" value="${voteVal}"/>
-                <input type="hidden" name="key" value="${key}" />
+                <input type="hidden" name="key" value="$issueKey" />
             </div>
         </div>
+    
 
         <div class="buttons-container form-footer">
             <div class="buttons">
+                #if($isInstant && $isCreator)
+                <!-- End session button (creator only, instant mode only) - Hidden until creator votes -->
+                <button type="button" id="end-session-btn" class="aui-button aui-button-primary">
+                    Finish Session
+                </button>
+                #end
                 <input accesskey="s" class="button" id="poker-vote-submit"
                        name="Vote" title="Press Ctrl+Alt+s to submit this form"
                        type="submit" value="Vote">
-                <a accesskey="`" class="cancel" href="/browse/${key}" id="vote-poker-cancel"
+                <a accesskey="`" class="cancel" href="/browse/$issueKey" id="vote-poker-cancel"
                    title="Press Ctrl+Alt+` to cancel">Cancel</a>
             </div>
         </div>
+
+
     </form>
 
+    #if(!$isInstant)
     <script type="text/javascript">
         (function() {
             var cards = document.getElementsByClassName("card");
             for (var i = 0; i < cards.length; i++) {
                 cards[i].addEventListener("click", function() {
-                    // Remove active from all cards
                     for (var j = 0; j < cards.length; j++) {
                         cards[j].classList.remove("active");
                     }
-                    // Add active to clicked card
                     this.classList.add("active");
-                    // Update hidden field
                     document.getElementById("poker-vote-value").value = this.getAttribute("data-value");
                 });
             }
         })();
     </script>
-    #else
-    <!-- End session button (creator only, instant mode only) -->
-    #if($isCreator)
-        <div style="margin-top: 20px;">
-            <button type="button" id="end-session-btn" class="aui-button aui-button-primary">
-                End Session & Show Results
-            </button>
-        </div>
-    #end
     #end
 #end
 
@@ -175,7 +173,75 @@
         #end
     </div>
 #end
+
+<!-- Session details section (only in instant mode) -->
+#if($isInstant && !$sessionEnded)
+    <div id="session-details" style="margin-top: 30px; border-top: 1px solid #ccc; padding-top: 20px;">
+        <h3>Session Details</h3>
+
+        <ul class="item-details">
+            <li class="people-details">
+                <dl>
+                    <dt>Author:</dt>
+                    <dd>
+                        <span class="view-issue-field">$action.getAuthorHtml($session)</span>
+                    </dd>
+                </dl>
+            </li>
+        </ul>
+
+        <ul class="item-details">
+            <li>
+                <dl class="score">
+                    <dt>Status:</dt>
+                    <dd>
+                        #set($status = $action.getStatus($session))
+                        #if ($status == "SCHEDULED")
+                        <span class="aui-lozenge aui-lozenge-subtle aui-lozenge-complete">Scheduled</span>
+                        #elseif ($status == "IN_PROGRESS")
+                        <span class="aui-lozenge aui-lozenge-subtle jira-issue-status-lozenge-yellow">In Progress</span>
+                        #elseif ($status == "FINISHED")
+                        <span class="aui-lozenge aui-lozenge-subtle aui-lozenge-error">Finished</span>
+                        #end
+                    </dd>
+                </dl>
+                <dl class="votes">
+                    <dt>Votes:</dt>
+                    <dd>
+                        <span class="aui-badge" id="votes-count">$action.getVotesSize($session)</span>
+                    </dd>
+                </dl>
+            </li>
+        </ul>
+
+        <ul class="item-details">
+            <li>
+                <dl>
+                    <dt>Who Voted:</dt>
+                    <dd id="voters-list">
+                        #set($voters = $action.getVoters())
+                        #if($voters && $voters.size() > 0)
+                            #foreach($voter in $voters)
+                                <span class="aui-avatar aui-avatar-xsmall" style="display: inline-block; margin-right: 5px;">
+                                    <span class="aui-avatar-inner">
+                                        <img src="$action.getAvatarURL($voter)" alt="$voter.displayName" title="$voter.displayName">
+                                    </span>
+                                </span>
+                            #end
+                        #else
+                            <span class="no-voters">No votes yet</span>
+                        #end
+                    </dd>
+                </dl>
+            </li>
+        </ul>
+    </div>
+#end
 </div>
+
+#if($isInstant)
+$webResourceManager.requireResource("com.redhat.engineering.plugins.planning-poker:instant-poker-resources")
+#end
 
 #if(!$isInstant)
 </body>

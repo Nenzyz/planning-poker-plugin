@@ -65,7 +65,20 @@ public class SessionService extends AbstractPokerService {
 
     public Session get(String issueKey) {
         log.info("Get session by issue key: " + issueKey);
-        Issue issue = issueService.getIssue(authContext.getUser(), issueKey).getIssue();
+        if (issueKey == null) {
+            log.warn("Issue key is null");
+            return null;
+        }
+
+        IssueService.IssueResult issueResult = issueService.getIssue(authContext.getUser(), issueKey);
+        if (!issueResult.isValid() || issueResult.getIssue() == null) {
+            log.warn("Could not retrieve issue: " + issueKey + " - " +
+                     (issueResult.getErrorCollection().hasAnyErrors() ?
+                      issueResult.getErrorCollection().toString() : "Issue is null"));
+            return null;
+        }
+
+        Issue issue = issueResult.getIssue();
         Properties sessionProps = (Properties) pluginSettings.get(getIssueStoreKey(issue));
         if (sessionProps == null) {
             return null;

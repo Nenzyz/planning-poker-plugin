@@ -13,6 +13,7 @@ import com.atlassian.jira.security.Permissions;
 import com.atlassian.jira.user.ApplicationUser;
 import com.google.common.collect.Maps;
 import com.redhat.engineering.plugins.domain.Session;
+import com.redhat.engineering.plugins.domain.Status;
 import com.redhat.engineering.plugins.domain.Vote;
 import com.redhat.engineering.plugins.services.ConfigService;
 import com.redhat.engineering.plugins.services.SessionService;
@@ -24,6 +25,10 @@ import com.atlassian.jira.issue.ModifiedValue;
 import com.atlassian.jira.issue.fields.CustomField;
 import com.atlassian.jira.issue.util.DefaultIssueChangeHolder;
 import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.datetime.DateTimeFormatter;
+import com.atlassian.jira.datetime.DateTimeStyle;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +42,8 @@ import java.util.Map;
  */
 @SupportedMethods({RequestMethod.GET, RequestMethod.POST})
 public class VoteAction extends AbstractAction {
+
+    private static final Logger log = LoggerFactory.getLogger(VoteAction.class);
 
     private final JiraAuthenticationContext authContext;
     private final SessionService sessionService;
@@ -144,6 +151,8 @@ public class VoteAction extends AbstractAction {
 
     @Override
     public String doExecute() throws Exception {
+        log.info("VoteAction.doExecute - action: " + action + ", key: " + key);
+
         if ("endSession".equals(action)) {
             return doEndSession();
         } else if ("applyEstimate".equals(action)) {
@@ -154,7 +163,13 @@ public class VoteAction extends AbstractAction {
     }
 
     private String doVote() throws Exception {
-        if (!permissionManager.hasPermission(Permissions.EDIT_ISSUE, getSessionObject().getIssue(), getCurrentUser())) {
+        Session session = getSessionObject();
+        if (session == null) {
+            addErrorMessage("Session not found. Please ensure the planning poker session exists.");
+            return ERROR;
+        }
+
+        if (!permissionManager.hasPermission(Permissions.EDIT_ISSUE, session.getIssue(), getCurrentUser())) {
             addErrorMessage("You don't have permission to vote.");
             return ERROR;
         }
@@ -162,7 +177,7 @@ public class VoteAction extends AbstractAction {
         Vote vote = new Vote();
         vote.setValue(getVoteVal());
         vote.setVoter(getCurrentUser());
-        vote.setSession(getSessionObject());
+        vote.setSession(session);
         vote.setComment(getVoteComment());
         voteService.save(vote);
 
@@ -171,16 +186,29 @@ public class VoteAction extends AbstractAction {
     }
 
     private String doEndSession() throws Exception {
+        log.info("doEndSession called - key: " + key);
+
         Session session = getSessionObject();
+        if (session == null) {
+            log.error("Session not found for key: " + key);
+            addErrorMessage("Session not found. Please ensure the planning poker session exists.");
+            return ERROR;
+        }
+
+        log.info("Session found, author: " + session.getAuthor().getKey() + ", current user: " + getCurrentUser().getKey());
+
         if (!session.getAuthor().equals(getCurrentUser())) {
             addErrorMessage("Only the session creator can end the session.");
             return ERROR;
         }
 
         // Set end date to NOW to close session immediately
-        session.setEnd(new Date());
+        Date now = new Date();
+        log.info("Setting session end date to: " + now);
+        session.setEnd(now);
         sessionService.update(session);
 
+        log.info("Session ended successfully");
         addMessage("Session ended successfully.");
         return SUCCESS;
     }
@@ -323,5 +351,37 @@ public class VoteAction extends AbstractAction {
     public boolean isSessionEnded() {
         Session session = getSessionObject();
         return session != null && System.currentTimeMillis() >= session.getEnd().getTime();
+    }
+
+    // Helper methods for session details display
+
+    public Session getSession() {
+        return getSessionObject();
+    }
+
+    public String formatDate(Date date) {
+        DateTimeFormatter formatter = ComponentAccessor.getComponent(DateTimeFormatter.class)
+                .forLoggedInUser()
+                .withStyle(DateTimeStyle.RELATIVE_ALWAYS_WITH_TIME);
+        return formatter.format(date);
+    }
+
+    public String getAuthorHtml(Session session) {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("avatarURL", getAvatarURL(session.getAuthor()));
+        UserFormatter userFormatter = userFormats.formatter("avatarFullNameHover");
+        return userFormatter.formatUserkey(session.getAuthor().getKey(), "poker-author", params);
+    }
+
+    public Integer getVotesSize(Session session) {
+        return voteService.getVoteValsBySession(session).size();
+    }
+
+    public Status getStatus(Session session) {
+        return sessionService.getStatus(session);
+    }
+
+    public boolean isInstantMode() {
+        return false;  // Regular VoteAction is not instant mode
     }
 }

@@ -2,65 +2,65 @@ package com.redhat.engineering.plugins.actions;
 
 import com.atlassian.jira.security.request.RequestMethod;
 import com.atlassian.jira.security.request.SupportedMethods;
-import com.atlassian.jira.bc.issue.IssueService;
-import com.atlassian.jira.issue.Issue;
+import com.atlassian.jira.avatar.AvatarService;
+import com.atlassian.jira.plugin.userformat.UserFormats;
 import com.atlassian.jira.security.JiraAuthenticationContext;
 import com.atlassian.jira.security.PermissionManager;
-import com.atlassian.jira.security.Permissions;
-import com.atlassian.jira.user.ApplicationUser;
 import com.redhat.engineering.plugins.domain.Session;
 import com.redhat.engineering.plugins.services.SessionService;
+import com.redhat.engineering.plugins.services.ConfigService;
+import com.redhat.engineering.plugins.services.VoteService;
+import com.atlassian.jira.component.ComponentAccessor;
+import com.atlassian.jira.bc.issue.IssueService;
+import com.atlassian.jira.issue.Issue;
 
 import java.util.Date;
 
 /**
- * Instant poker: auto-create session with defaults and redirect to voting
+ * Instant poker: auto-create session with defaults and show voting interface
+ * Extends VoteAction to reuse voting template and methods
  */
 @SupportedMethods({RequestMethod.GET, RequestMethod.POST})
-public class InstantPokerAction extends AbstractAction {
+public class InstantPokerAction extends VoteAction {
 
-    private final IssueService issueService;
-    private final JiraAuthenticationContext authContext;
     private final SessionService sessionService;
     private final PermissionManager permissionManager;
 
-    private String key;
-
-    public InstantPokerAction(IssueService issueService,
-                             JiraAuthenticationContext authContext,
+    public InstantPokerAction(JiraAuthenticationContext authContext,
                              SessionService sessionService,
-                             PermissionManager permissionManager) {
-        this.issueService = issueService;
-        this.authContext = authContext;
+                             VoteService voteService,
+                             UserFormats userFormats,
+                             AvatarService avatarService,
+                             PermissionManager permissionManager,
+                             ConfigService configService) {
+        super(authContext, sessionService, voteService, userFormats, avatarService, permissionManager, configService);
         this.sessionService = sessionService;
         this.permissionManager = permissionManager;
     }
 
-    public String getKey() { return key; }
-    public void setKey(String key) { this.key = key; }
-
     @Override
     public String doDefault() throws Exception {
-        if (!authContext.isLoggedInUser()) {
-            addErrorMessage("You must be logged in.");
-            return ERROR;
-        }
+        // Get or create session with instant defaults
+        Session session = findOrCreateSession();
 
-        Issue issue = getIssueObject();
-        if (issue == null) return ERROR;
+        // Now call parent's doDefault to set up vote state and return INPUT
+        return super.doDefault();
+    }
 
-        if (!permissionManager.hasPermission(Permissions.EDIT_ISSUE, issue, getCurrentUser())) {
-            addErrorMessage("You don't have permission to create sessions.");
-            return ERROR;
-        }
+    @Override
+    public boolean isInstantMode() {
+        return true;  // InstantPokerAction is ALWAYS instant mode
+    }
 
-        // Check for existing session - reuse if found, extend if ended
+    private Session findOrCreateSession() {
+        // Use injected sessionService
         Session session = sessionService.get(getKey());
+
         if (session == null) {
             // Create new session with 1-hour defaults
             session = new Session();
-            session.setIssue(issue);
-            session.setAuthor(getCurrentUser());
+            session.setIssue(getIssueObject());
+            session.setAuthor(getLoggedInApplicationUser());
             session.setCreated(new Date());
             session.setStart(new Date());
             session.setEnd(new Date(System.currentTimeMillis() + 3600000)); // +1 hour
@@ -74,33 +74,17 @@ public class InstantPokerAction extends AbstractAction {
             }
         }
 
-        // Return INPUT to show voting dialog
-        return INPUT;
-    }
-
-    // Add getter for allowed votes (needed by the view)
-    public java.util.List<String> getAllowedVotes() {
-        return com.atlassian.jira.component.ComponentAccessor
-            .getComponent(com.redhat.engineering.plugins.services.ConfigService.class)
-            .getAllowedVotes();
-    }
-
-    // Add helper methods for the view
-    public boolean isCreator() {
-        Session session = sessionService.get(getKey());
-        return session != null && session.getAuthor().equals(getCurrentUser());
+        return session;
     }
 
     private Issue getIssueObject() {
-        IssueService.IssueResult issueResult = issueService.getIssue(getCurrentUser(), getKey());
+        IssueService issueService = ComponentAccessor.getIssueService();
+        // Use inherited getLoggedInApplicationUser() from parent class
+        IssueService.IssueResult issueResult = issueService.getIssue(getLoggedInApplicationUser(), getKey());
         if (!issueResult.isValid()) {
-            this.addErrorCollection(issueResult.getErrorCollection());
+            addErrorCollection(issueResult.getErrorCollection());
             return null;
         }
         return issueResult.getIssue();
-    }
-
-    private ApplicationUser getCurrentUser() {
-        return authContext.getUser();
     }
 }
